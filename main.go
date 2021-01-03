@@ -1,44 +1,27 @@
 package main
 
 import (
-	// "os"
+	"bufio"
 	"fmt"
+	"os"
 	"sort"
-	// "runtime"
-	// "reflect"
-	// "time"
-	// "sample-proj/add"
-	"gopkg.in/src-d/go-git.v4"
-	// . "gopkg.in/src-d/go-git.v4/_examples"
-	"gopkg.in/src-d/go-git.v4/plumbing"
-	// "github.com/go-git/go-git/v5/plumbing/object"
+	"strconv"
 
+	"gopkg.in/src-d/go-git.v4"
+	"gopkg.in/src-d/go-git.v4/plumbing"
 )
 
 func main() {
-	// defer func() {
-    //     if r := recover(); r != nil {
-    //         fmt.Fprintf(os.Stderr, "Panic: %v\n", r)
-    //         for depth := 0; ; depth++ {
-    //             pc, src, line, ok := runtime.Caller(depth)
-    //             if !ok {
-    //                 break
-    //             }
-    //             fmt.Fprintf(os.Stderr, " -> %d: %x: %s:%d\n", depth, pc, src, line)
-    //         }
-    //     }
-	// }()
-	
-	dir := "/Users/k_abe/projects/panasonic/aws-kurashi-app-api"
-	r, err := git.PlainOpen(dir)	
+	// open
+	dir := "./"
+	op := git.PlainOpenOptions{ DetectDotGit: true, }
+	r, err := git.PlainOpenWithOptions(dir, &op)	
 	if err != nil { panic(err) }
-	fmt.Println("Directory Opened.")
 
-	tagrefs, err := r.Branches()
+	// enumerate
 	var tarr []*plumbing.Reference
-
+	tagrefs, err := r.Branches()
 	err = tagrefs.ForEach(func(t *plumbing.Reference) error {
-		// h := t.Hash()
 		tarr = append(tarr, t)
 		return nil
 	})
@@ -54,42 +37,26 @@ func main() {
 	
 	// show
 	for i, v := range tarr {
-		// c, _ := r.CommitObject(v.Hash())
 		fmt.Printf("[%d] ", i)
-		// fmt.Println(c.Author.When)
 		fmt.Println(v.Name())
 	}
 
+	// select
+	fmt.Printf(">> Select branch number you move on: ")
+	scanner := bufio.NewScanner(os.Stdin)
+	scanner.Scan()
+	num, err := strconv.Atoi(scanner.Text())
+	if err != nil { panic(err) }
+
+	// checkout
+	name := tarr[num].Name()
+	gco := git.CheckoutOptions{ Branch: name, }
+ 
 	w, err := r.Worktree()
-	if err != nil {
-		panic(err)
-	}
-
-
-	// ... checking out to commit
-	// branch := tarr[0].Name()
-	// commit := tarr[1].Hash().String()
-	// fmt.Println(commit)
-	name := tarr[1].Name()
-	fmt.Println(name)
-	// fmt.Println(branch)
-	// // go := git.CheckoutOptions()
-	// go := git.CheckoutOptions{
-    //     Branch: branch
-	// }
-
-	gco := git.CheckoutOptions{
-		// Hash: plumbing.NewHash(commit),
-		Branch: name,
-	}
-
-	// fmt.Println(gco.Hash)
-	// fmt.Println(gco.Branch)
-	// fmt.Println(gco.Create)
-	// fmt.Println(gco.Force)
-	// fmt.Println(gco.Keep)
-
+	if err != nil { panic(err) }
 	err = w.Checkout(&gco)
-	if err != nil {panic(err)}
-    // handle error
+	if err != nil { panic(err) }
+
+	// end
+	fmt.Printf("You moved on: %s\n", name)
 }
