@@ -9,12 +9,13 @@ gitのブランチを移動します(表示されるブランチは最新コミ�
 You moved on: refs/heads/master
 ```
 
-## setup 
+## Setup 
 ```
 // goの環境を整備した上でコンパイル 
 > go build -o hoge main.go  
 // shellの設定ファイルに実行ファイルへのエイリアスを追加など
-> echo alias ggc='/path/to/this/repository/hoge'
+> echo alias ggc='/path/to/this/repository/hoge' >> ~/.zshrc
+> source ~/.zshrc
 
 // 作業ディレクトリに移動して実行
 > ggc 
