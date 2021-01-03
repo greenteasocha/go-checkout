@@ -4,33 +4,32 @@ import (
 	// "os"
 	"fmt"
 	"sort"
+	// "runtime"
 	// "reflect"
 	// "time"
 	// "sample-proj/add"
-	"github.com/go-git/go-git/v5"
-	// "github.com/go-git/go-git/v5/_examples"
-	"github.com/go-git/go-git/v5/plumbing"
+	"gopkg.in/src-d/go-git.v4"
+	// . "gopkg.in/src-d/go-git.v4/_examples"
+	"gopkg.in/src-d/go-git.v4/plumbing"
 	// "github.com/go-git/go-git/v5/plumbing/object"
 
 )
 
 func main() {
-	// r, err := git.PlainClone("/tmp/foo", false, &git.CloneOptions{
-	// 	URL:      "https://github.com/go-git/go-git",
-	// 	Progress: os.Stdout,
-	// })
-	// if err != nil {
-	// 	fmt.Println(reflect.TypeOf(err))
-	// 	if err == git.ErrRepositoryAlreadyExists {
-	// 		fmt.Println("repo was already cloned")
-	// 		dir := "/Users/k_abe/projects/panasonic/aws-kurashi-app-api/.git"
-	// 		r, err = git.PlainOpen(dir)
-	// 	}
-
-	// 	if err != nil { panic(err) }
-	// }
-
-	dir := ""
+	// defer func() {
+    //     if r := recover(); r != nil {
+    //         fmt.Fprintf(os.Stderr, "Panic: %v\n", r)
+    //         for depth := 0; ; depth++ {
+    //             pc, src, line, ok := runtime.Caller(depth)
+    //             if !ok {
+    //                 break
+    //             }
+    //             fmt.Fprintf(os.Stderr, " -> %d: %x: %s:%d\n", depth, pc, src, line)
+    //         }
+    //     }
+	// }()
+	
+	dir := "/Users/k_abe/projects/panasonic/aws-kurashi-app-api"
 	r, err := git.PlainOpen(dir)	
 	if err != nil { panic(err) }
 	fmt.Println("Directory Opened.")
@@ -39,17 +38,10 @@ func main() {
 	var tarr []*plumbing.Reference
 
 	err = tagrefs.ForEach(func(t *plumbing.Reference) error {
-		h := t.Hash()
-		// commit, _ := r.CommitObject(h)
+		// h := t.Hash()
 		tarr = append(tarr, t)
 		return nil
 	})
-
-
-	// for i, v := range tarr {
-	// 	c, _ := r.CommitObject(v.Hash())
-	// 	fmt.Println(i, c.Author.When)
-	// }
 
 	// sort
 	sort.Slice(tarr, func(i, j int) bool {
@@ -68,66 +60,36 @@ func main() {
 		fmt.Println(v.Name())
 	}
 
-
-	// fmt.Println(tarr[0].Before(tarr[1]))
-	// fmt.Println(tarr[0].After(tarr[1]))
-
-
-
+	w, err := r.Worktree()
+	if err != nil {
+		panic(err)
+	}
 
 
-
-
-
-
-	// branches, err := r.Branches()
-	// fmt.Println("\nA branch: ")
-	
-	// ref, err := branches.Next()
-	// fmt.Println("\nBranch reference: ")
-	// fmt.Println(reflect.TypeOf(ref))
-	// fmt.Println(ref)
-
-	// name := ref.String()
-	// fmt.Println("\nName: ")
-	// fmt.Println(reflect.TypeOf(name))
-	// fmt.Println(name)
-
-	// br, err := r.Branch(name)
-	// fmt.Println("\nBranch: ")
-	// fmt.Println(reflect.TypeOf(br))
-	// fmt.Println(br)
-
-
-
-
-	// for i, v := range *branches {
-	// 	fmt.Println(v)
+	// ... checking out to commit
+	// branch := tarr[0].Name()
+	// commit := tarr[1].Hash().String()
+	// fmt.Println(commit)
+	name := tarr[1].Name()
+	fmt.Println(name)
+	// fmt.Println(branch)
+	// // go := git.CheckoutOptions()
+	// go := git.CheckoutOptions{
+    //     Branch: branch
 	// }
 
-	// ref, err := r.Head()
-	// if err != nil {
-	// 	panic(err)
-	// }
+	gco := git.CheckoutOptions{
+		// Hash: plumbing.NewHash(commit),
+		Branch: name,
+	}
 
-	// fmt.Println(ref)
+	// fmt.Println(gco.Hash)
+	// fmt.Println(gco.Branch)
+	// fmt.Println(gco.Create)
+	// fmt.Println(gco.Force)
+	// fmt.Println(gco.Keep)
 
-// 	iter, _ := r.Commits()
-//   	defer iter.Close()
-
-//   	for {
-// 		commit, err := iter.Next()
-// 		if err != nil {
-// 			if err == io.EOF {
-// 				break
-// 			}
-
-// 			panic(err)
-//   	}
-
-//   	fmt.Println(commit)
-//   }
-    // a := add.Inp()
-    // b := add.Inp()
-    // fmt.Println(add.Add(a, b))
+	err = w.Checkout(&gco)
+	if err != nil {panic(err)}
+    // handle error
 }
