@@ -16,7 +16,7 @@ You moved on: refs/heads/master
 // shellの設定ファイルに実行ファイルへのエイリアスを追加など
 > echo alias ggc='/path/to/this/repository/hoge'
 
-// 実行
+// 作業ディレクトリに移動して実行
 > ggc 
 ```
 
